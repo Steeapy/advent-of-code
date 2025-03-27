@@ -1,6 +1,4 @@
-use std::cmp::min;
 use std::fs;
-use std::ops::Add;
 
 struct Box{
     l: u32,
@@ -11,16 +9,14 @@ struct Box{
 fn main() {
     let input: String = fs::read_to_string("input/input.txt")
         .expect("Error reading input.txt");
-    
+
     let dimensions: Vec<Box> = parse_input(input);
-    
+
     println!("Sum Paper: {}", get_total_paper(dimensions))
 }
 
 fn get_total_paper(dimensions: Vec<Box>) -> u32{
     let mut sum_paper: u32 = 0;
-    let mut sum_slack: u32 = 0;
-    let mut sum_raw: u32 = 0;
     
     for present in dimensions{
         let areas: Vec<u32> = vec![
@@ -31,15 +27,8 @@ fn get_total_paper(dimensions: Vec<Box>) -> u32{
         let area_present: u32 = areas.iter().sum();
         let smallest_area: u32 = areas.into_iter().min().unwrap()/2;
         
-        sum_slack += smallest_area;
-        sum_raw += area_present;
-        
         sum_paper += area_present + smallest_area;
     }
-    
-    println!("Sum slack: {}", sum_slack);
-    println!("Sum raw  : {}", sum_raw);
-    
     sum_paper
 }
 
@@ -63,6 +52,6 @@ fn parse_input(input: String) -> Vec<Box> {
                 .unwrap(),
         });
     }
-    
+
     dimensions
 }
