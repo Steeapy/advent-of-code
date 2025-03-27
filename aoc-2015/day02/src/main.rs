@@ -1,49 +1,68 @@
+use std::cmp::min;
 use std::fs;
-
+use std::ops::Add;
 
 struct Box{
-    length: u32,
-    height: u32,
-    width: u32,
+    l: u32,
+    h: u32,
+    w: u32,
 }
 
 fn main() {
     let input: String = fs::read_to_string("input/input.txt")
         .expect("Error reading input.txt");
+    
+    let dimensions: Vec<Box> = parse_input(input);
+    
+    println!("Sum Paper: {}", get_total_paper(dimensions))
+}
 
+fn get_total_paper(dimensions: Vec<Box>) -> u32{
+    let mut sum_paper: u32 = 0;
+    let mut sum_slack: u32 = 0;
+    let mut sum_raw: u32 = 0;
+    
+    for present in dimensions{
+        let areas: Vec<u32> = vec![
+            (2 * present.l * present.w),
+            (2 * present.w * present.h),
+            (2 * present.h * present.l),
+        ];
+        let area_present: u32 = areas.iter().sum();
+        let smallest_area: u32 = areas.into_iter().min().unwrap()/2;
+        
+        sum_slack += smallest_area;
+        sum_raw += area_present;
+        
+        sum_paper += area_present + smallest_area;
+    }
+    
+    println!("Sum slack: {}", sum_slack);
+    println!("Sum raw  : {}", sum_raw);
+    
+    sum_paper
+}
+
+fn parse_input(input: String) -> Vec<Box> {
     let mut dimensions: Vec<Box> = Vec::new();
+
     for line in input.lines().into_iter() {
         let values: Vec<&str> = line
-            .split('x').collect();
+            .split('x')
+            .collect();
 
         dimensions.push(Box{
-            length: values[0].parse().unwrap(),
-            height: values[1].parse().unwrap(),
-            width: values[2].parse().unwrap(),
+            l: values[0]
+                .parse()
+                .unwrap(),
+            h: values[1]
+                .parse()
+                .unwrap(),
+            w: values[2]
+                .parse()
+                .unwrap(),
         });
     }
-
-    let mut sum_sq_ft: u32 = 0;
-    let mut sum_slack: u32 = 0;
-    for cube in dimensions{
-        let side1: u32 = 2*cube.length*cube.width;
-        let side2: u32 = 2*cube.width*cube.height;
-        let side3: u32 = 2*cube.height*cube.length;
-        let smallest_side: u32 = (side1.min(side2).min(side3)) / 2;
-        sum_slack += smallest_side;
-
-        print!("Side1:{side1}\tSide2:{side2}\tSide3:{side3}\tsmallest:{smallest_side}");
-        let length: u32 = cube.length;
-        let height: u32 = cube.height;
-        let width: u32 = cube.width;
-
-        let total_box: u32 = side1 + side2 + side3 + smallest_side;
-        println!("\tLength:{length}\tHeight:{height}\tWidth:{width}\tTotalBox:{total_box}");
-
-
-        sum_sq_ft += side1 + side2 + side3 + smallest_side;
-    }
-
-    println!("Part 1    : {}", sum_sq_ft);
-    println!("Part 1Slack: {}", sum_slack);
+    
+    dimensions
 }
